@@ -1,0 +1,107 @@
+      1 0.000000000    127.0.0.1             127.0.0.1             TCP      74     54296 → 4300 [SYN] Seq=0 Win=43690 Len=0 MSS=65495 SACK_PERM=1 TSval=2328458081 TSecr=0 WS=128
+
+Frame 1: 74 bytes on wire (592 bits), 74 bytes captured (592 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 54296, Dst Port: 4300, Seq: 0, Len: 0
+
+      2 0.000010553    127.0.0.1             127.0.0.1             TCP      74     4300 → 54296 [SYN, ACK] Seq=0 Ack=1 Win=43690 Len=0 MSS=65495 SACK_PERM=1 TSval=2328458081 TSecr=2328458081 WS=128
+
+Frame 2: 74 bytes on wire (592 bits), 74 bytes captured (592 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 4300, Dst Port: 54296, Seq: 0, Ack: 1, Len: 0
+
+      3 0.000019418    127.0.0.1             127.0.0.1             TCP      66     54296 → 4300 [ACK] Seq=1 Ack=1 Win=43776 Len=0 TSval=2328458081 TSecr=2328458081
+
+Frame 3: 66 bytes on wire (528 bits), 66 bytes captured (528 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 54296, Dst Port: 4300, Seq: 1, Ack: 1, Len: 0
+
+      4 0.000339343    127.0.0.1             127.0.0.1             TCP      81     54296 → 4300 [PSH, ACK] Seq=1 Ack=1 Win=43776 Len=15 TSval=2328458082 TSecr=2328458081
+
+Frame 4: 81 bytes on wire (648 bits), 81 bytes captured (648 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 54296, Dst Port: 4300, Seq: 1, Ack: 1, Len: 15
+Data (15 bytes)
+
+0000  48 69 2c 20 49 27 6d 20 4d 69 63 68 61 65 6c      Hi, I'm Michael
+
+      5 0.000350344    127.0.0.1             127.0.0.1             TCP      66     4300 → 54296 [ACK] Seq=1 Ack=16 Win=43776 Len=0 TSval=2328458082 TSecr=2328458082
+
+Frame 5: 66 bytes on wire (528 bits), 66 bytes captured (528 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 4300, Dst Port: 54296, Seq: 1, Ack: 16, Len: 0
+
+      6 0.000369141    127.0.0.1             127.0.0.1             TCP      80     4300 → 54296 [PSH, ACK] Seq=1 Ack=16 Win=43776 Len=14 TSval=2328458082 TSecr=2328458082
+
+Frame 6: 80 bytes on wire (640 bits), 80 bytes captured (640 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 4300, Dst Port: 54296, Seq: 1, Ack: 16, Len: 14
+Data (14 bytes)
+
+0000  48 65 6c 6c 6f 2c 20 4d 69 63 68 61 65 6c         Hello, Michael
+
+      7 0.000371697    127.0.0.1             127.0.0.1             TCP      66     54296 → 4300 [ACK] Seq=16 Ack=15 Win=43776 Len=0 TSval=2328458082 TSecr=2328458082
+
+Frame 7: 66 bytes on wire (528 bits), 66 bytes captured (528 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 54296, Dst Port: 4300, Seq: 16, Ack: 15, Len: 0
+
+      8 0.000453945    127.0.0.1             127.0.0.1             TCP      66     54296 → 4300 [FIN, ACK] Seq=16 Ack=15 Win=43776 Len=0 TSval=2328458082 TSecr=2328458082
+
+Frame 8: 66 bytes on wire (528 bits), 66 bytes captured (528 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 54296, Dst Port: 4300, Seq: 16, Ack: 15, Len: 0
+
+      9 0.000483463    127.0.0.1             127.0.0.1             TCP      66     4300 → 54296 [FIN, ACK] Seq=15 Ack=17 Win=43776 Len=0 TSval=2328458082 TSecr=2328458082
+
+Frame 9: 66 bytes on wire (528 bits), 66 bytes captured (528 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 4300, Dst Port: 54296, Seq: 15, Ack: 17, Len: 0
+
+     10 0.000488000    127.0.0.1             127.0.0.1             TCP      66     54296 → 4300 [ACK] Seq=17 Ack=16 Win=43776 Len=0 TSval=2328458082 TSecr=2328458082
+
+Frame 10: 66 bytes on wire (528 bits), 66 bytes captured (528 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 54296, Dst Port: 4300, Seq: 17, Ack: 16, Len: 0
+
+     11 64.168047300   127.0.0.1             127.0.1.1             DNS      74     Standard query 0x8cfe A ntp.ubuntu.com
+
+Frame 11: 74 bytes on wire (592 bits), 74 bytes captured (592 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.1.1
+User Datagram Protocol, Src Port: 43843, Dst Port: 53
+Domain Name System (query)
+
+     12 64.168062517   127.0.0.1             127.0.1.1             DNS      74     Standard query 0xa165 AAAA ntp.ubuntu.com
+
+Frame 12: 74 bytes on wire (592 bits), 74 bytes captured (592 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.1.1
+User Datagram Protocol, Src Port: 43843, Dst Port: 53
+Domain Name System (query)
+
+     13 64.192783583   127.0.1.1             127.0.0.1             DNS      138    Standard query response 0x8cfe A ntp.ubuntu.com A 91.189.94.4 A 91.189.89.199 A 91.189.89.198 A 91.189.91.157
+
+Frame 13: 138 bytes on wire (1104 bits), 138 bytes captured (1104 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.1.1, Dst: 127.0.0.1
+User Datagram Protocol, Src Port: 53, Dst Port: 43843
+Domain Name System (response)
+
+     14 64.214628847   127.0.1.1             127.0.0.1             DNS      130    Standard query response 0xa165 AAAA ntp.ubuntu.com AAAA 2001:67c:1560:8003::c8 AAAA 2001:67c:1560:8003::c7
+
+Frame 14: 130 bytes on wire (1040 bits), 130 bytes captured (1040 bits) on interface 0
+Ethernet II, Src: 00:00:00_00:00:00 (00:00:00:00:00:00), Dst: 00:00:00_00:00:00 (00:00:00:00:00:00)
+Internet Protocol Version 4, Src: 127.0.1.1, Dst: 127.0.0.1
+User Datagram Protocol, Src Port: 53, Dst Port: 43843
+Domain Name System (response)
