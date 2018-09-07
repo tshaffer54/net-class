@@ -1,4 +1,4 @@
-'''Simple client program'''
+1'''Simple client program'''
 import socket
 import sys
 
