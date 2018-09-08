@@ -1,7 +1,8 @@
-'''
+"""
 GEO TCP Client
-'''
-#!/usr/bin/env python3
+"""
+
+# !/usr/bin/env python3
 
 from socket import socket, AF_INET, SOCK_STREAM
 
@@ -10,12 +11,17 @@ PORT = 4300
 
 
 def client():
-    '''Main client loop'''
+    """Main client loop"""
     # TODO: Implement client-side tasks
-    pass
+    with socket(AF_INET, SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        print('Connected to {}:{}'.format(HOST, PORT))
+        name = input("Please enter a country name: ")
+        s.sendall("{}".format(name).encode())
+
 
 def main():
-    '''Main function'''
+    """Main function"""
     client()
 
 
