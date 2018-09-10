@@ -24,7 +24,7 @@ def server(world: dict) -> None:
     """Main server loop"""
     # TODO: Implement server-side tasks
     with socket(AF_INET, SOCK_STREAM) as s:
-        s. bind((HOST, PORT))
+        s.bind((HOST, PORT))
         s.listen(1)
         print("Listening on port {}".format(PORT))
         conn, addr = s.accept()
@@ -36,11 +36,11 @@ def server(world: dict) -> None:
                     print("Connection closed")
                     break
                 name = data.decode()
-                print("{}".format(name))
+                # print("{}".format(name))
                 cap = world[name]
-                print(cap)
-                print("{} is the captial of {}".format(cap, name))
-
+                # print(cap)
+                # print("{} is the captial of {}".format(cap, name))
+                conn.sendall("{} is the capital of {}".format(name, cap).encode())
 
 
 def main():

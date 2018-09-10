@@ -18,6 +18,8 @@ def client():
         print('Connected to {}:{}'.format(HOST, PORT))
         name = input("Please enter a country name: ")
         s.sendall("{}".format(name).encode())
+        data = s.recv(1024)
+        print(data.decode())
 
 
 def main():
