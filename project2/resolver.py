@@ -32,35 +32,60 @@ PUBLIC_DNS_SERVER = [
 
 
 def val_to_2_bytes(value: int) -> list:
-    '''Split a value into 2 bytes'''
-    raise NotImplementedError
+    bites = [bytes([value])]
+    return bites
+    # """Split a value into 2 bytes"""
+    # raise NotImplementedError
+
 
 def val_to_n_bytes(value: int, n_bytes: int) -> list:
-    '''Split a value into n bytes'''
+    """Split a value into n bytes"""
     raise NotImplementedError
+
 
 def bytes_to_val(bytes_lst: list) -> int:
-    '''Merge 2 bytes into a value'''
+    """Merge 2 bytes into a value"""
     raise NotImplementedError
+
 
 def get_2_bits(bytes_lst: list) -> int:
-    '''Extract first two bits of a two-byte sequence'''
-    raise NotImplementedError
+    bits = bytes_lst[:2]
+    return bits
+    # """Extract first two bits of a two-byte sequence"""
+    # raise NotImplementedError
+
 
 def get_offset(bytes_lst: list) -> int:
-    '''Extract size of the offset from a two-byte sequence'''
+    """Extract size of the offset from a two-byte sequence"""
     raise NotImplementedError
+
 
 def parse_cli_query(filename, q_type, q_domain, q_server=None) -> tuple:
-    '''Parse command-line query'''
-    raise NotImplementedError
+    q_type = q_type
+    q_domain = q_domain
+    if q_server is None:
+        num = randint(0, 10)
+        q_server = PUBLIC_DNS_SERVER[num]
+    else:
+        q_server = q_server
+    return tuple([q_type] + [q_domain] + [q_server])
+    # """Parse command-line query"""
+    # raise NotImplementedError
+
 
 def format_query(q_type: int, q_domain: list) -> bytearray:
-    '''Format DNS query'''
-    raise NotImplementedError
+    inte = ord(q_type)
+    frame = bytearray()
+    frame.append(inte)
+    for item in q_domain:
+        frame.append(ord(item))
+    return frame
+    # """Format DNS query"""
+    # raise NotImplementedError
+
 
 def send_request(q_message: bytearray, q_server: str) -> bytes:
-    '''Contact the server'''
+    """Contact the server"""
     client_sckt = socket(AF_INET, SOCK_DGRAM)
     client_sckt.sendto(q_message, (q_server, PORT))
     (q_response, _) = client_sckt.recvfrom(2048)
@@ -68,24 +93,30 @@ def send_request(q_message: bytearray, q_server: str) -> bytes:
     
     return q_response
 
+
 def parse_response(resp_bytes: bytes):
-    '''Parse server response'''
+    """Parse server response"""
     raise NotImplementedError
+
 
 def parse_answers(resp_bytes: bytes, offset: int, rr_ans: int) -> list:
-    '''Parse DNS server answers'''
+    """Parse DNS server answers"""
     raise NotImplementedError
+
 
 def parse_address_a(addr_len: int, addr_bytes: bytes) -> str:
-    '''Extract IPv4 address'''
+    """Extract IPv4 address"""
     raise NotImplementedError
+
 
 def parse_address_aaaa(addr_len: int, addr_bytes: bytes) -> str:
-    '''Extract IPv6 address'''
+    """Extract IPv6 address"""
     raise NotImplementedError
 
+
 def resolve(query: str) -> None:
-    '''Resolve the query'''
+    """Resolve the query"""
+    print(*query[0])
     q_type, q_domain, q_server = parse_cli_query(*query[0])
     query_bytes = format_query(q_type, q_domain)
     response_bytes = send_request(query_bytes, q_server)
@@ -96,8 +127,9 @@ def resolve(query: str) -> None:
         print('TTL: {}'.format(a[1]))
         print('Address: {}'.format(a[2]))
 
+
 def main(*query):
-    '''Main function'''
+    """Main function"""
     if len(query[0]) < 3 or len(query[0]) > 4:
         print('Proper use: python3 resolver.py <type> <domain> <server>')
         exit()
