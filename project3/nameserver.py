@@ -32,13 +32,19 @@ TTL_SEC = {
 
 
 def val_to_bytes(value: int, n_bytes: int) -> list:
-    '''Split a value into n bytes'''
-    raise NotImplementedError
+    bites = [bytes([value])]
+    return bites
+    # '''Split a value into n bytes'''
+    # raise NotImplementedError
 
 
 def bytes_to_val(bytes_lst: list) -> int:
-    '''Merge n bytes into a value'''
-    raise NotImplementedError
+    bit = 0
+    for i in bytes_lst:
+        bit = bit * 256 + int(i)
+    return bit
+    # '''Merge n bytes into a value'''
+    # raise NotImplementedError
 
 
 def get_left_bits(bytes_lst: list, n_bits: int) -> int:
