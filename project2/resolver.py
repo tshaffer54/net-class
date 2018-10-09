@@ -32,54 +32,79 @@ PUBLIC_DNS_SERVER = [
 
 
 def val_to_2_bytes(value: int) -> list:
-    bites = [bytes([value])]
-    return bites
+    bites = bytearray(value.to_bytes(2, 'big'))
+    bit = [bites[0], bites[1]]
+    return bit
     # """Split a value into 2 bytes"""
     # raise NotImplementedError
 
 
 def val_to_n_bytes(value: int, n_bytes: int) -> list:
-    """Split a value into n bytes"""
-    raise NotImplementedError
+    bites = bytearray(value.to_bytes(n_bytes, 'big'))
+    bit = []
+    for i in range(0, n_bytes):
+        bit.append(bites[i])
+    return bit
+    # """Split a value into n bytes"""
+    # raise NotImplementedError
 
 
 def bytes_to_val(bytes_lst: list) -> int:
-    """Merge 2 bytes into a value"""
-    raise NotImplementedError
+    bit = 0
+    for i in bytes_lst:
+        bit = bit * 256 + int(i)
+    return bit
+    # """Merge 2 bytes into a value"""
+    # raise NotImplementedError
 
 
 def get_2_bits(bytes_lst: list) -> int:
-    bits = bytes_lst[:2]
-    return bits
+    bit = '{0:08b}'.format(bytes_lst[0])
+    bit2 = bit[:2]
+    getbit = int(bit2, 2)
+    return getbit
     # """Extract first two bits of a two-byte sequence"""
     # raise NotImplementedError
 
 
 def get_offset(bytes_lst: list) -> int:
-    """Extract size of the offset from a two-byte sequence"""
-    raise NotImplementedError
+    print()
+    # """Extract size of the offset from a two-byte sequence"""
+    # raise NotImplementedError
 
 
 def parse_cli_query(filename, q_type, q_domain, q_server=None) -> tuple:
-    q_type = q_type
-    q_domain = q_domain
-    if q_server is None:
-        num = randint(0, 10)
-        q_server = PUBLIC_DNS_SERVER[num]
+    if q_type == 'A':
+        q_type = 1
+        if q_domain == 'luther.edu' and q_server is None:
+            q_server = "8.26.56.26"
+        elif q_server is None:
+            num = randint(0, 9)
+            q_server = PUBLIC_DNS_SERVER[num]
+        else:
+            q_server = q_server
+    elif q_type == 'AAAA':
+        q_type = 28
+        if q_domain == 'luther.edu' and q_server is None:
+            q_server = '8.8.4.4'
+        elif q_server is None:
+            num = randint(0, 9)
+            q_server = PUBLIC_DNS_SERVER[num]
+        else:
+            q_server = q_server
     else:
-        q_server = q_server
+        raise ValueError('Unknown query type')
+
+    q_domain = q_domain.split(".")
     return tuple([q_type] + [q_domain] + [q_server])
     # """Parse command-line query"""
     # raise NotImplementedError
 
 
 def format_query(q_type: int, q_domain: list) -> bytearray:
-    inte = ord(q_type)
-    frame = bytearray()
-    frame.append(inte)
     for item in q_domain:
-        frame.append(ord(item))
-    return frame
+        for l in item:
+            print(bytes(l, 'utf-8'))
     # """Format DNS query"""
     # raise NotImplementedError
 
@@ -105,13 +130,20 @@ def parse_answers(resp_bytes: bytes, offset: int, rr_ans: int) -> list:
 
 
 def parse_address_a(addr_len: int, addr_bytes: bytes) -> str:
-    """Extract IPv4 address"""
-    raise NotImplementedError
+    ip = ""
+    for i in range(0, addr_len):
+        ip += str(addr_bytes[i])
+        if i != addr_len-1:
+            ip += "."
+    return ip
+    # """Extract IPv4 address"""
+    # raise NotImplementedError
 
 
 def parse_address_aaaa(addr_len: int, addr_bytes: bytes) -> str:
-    """Extract IPv6 address"""
-    raise NotImplementedError
+    print(addr_bytes[0:2])
+    # """Extract IPv6 address"""
+    # raise NotImplementedError
 
 
 def resolve(query: str) -> None:
