@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import ipaddress
 from random import randint, choice, seed
 from socket import socket, SOCK_DGRAM, AF_INET
 
@@ -67,8 +68,8 @@ def get_2_bits(bytes_lst: list) -> int:
     # raise NotImplementedError
 
 
-def get_offset(bytes_lst: list) -> int:
-    print()
+def get_domain_name_location(bytes_lst: list) -> int:
+    return 2148
     # """Extract size of the offset from a two-byte sequence"""
     # raise NotImplementedError
 
@@ -102,11 +103,8 @@ def parse_cli_query(filename, q_type, q_domain, q_server=None) -> tuple:
 
 
 def format_query(q_type: int, q_domain: list) -> bytearray:
-    for item in q_domain:
-        for l in item:
-            print(bytes(l, 'utf-8'))
-    # """Format DNS query"""
-    # raise NotImplementedError
+    """Format DNS query"""
+    raise NotImplementedError
 
 
 def send_request(q_message: bytearray, q_server: str) -> bytes:
@@ -141,7 +139,25 @@ def parse_address_a(addr_len: int, addr_bytes: bytes) -> str:
 
 
 def parse_address_aaaa(addr_len: int, addr_bytes: bytes) -> str:
-    print(addr_bytes[0:2])
+    ip = str(ipaddress.IPv6Address(addr_bytes[0:16]).exploded)
+    ip = ip.split(':')
+    ipr = ''
+    for item in ip:
+        print(item)
+        if item[0] == '0':
+            if item[1] == '0':
+                if item[2] == '0':
+                    if item[3] == '0':
+                        ipr += '0' + ':'
+                    else:
+                        ipr += item[3] + ':'
+                else:
+                    ipr += item[2:]
+            else:
+                ipr += item[1:] + ':'
+        else:
+            ipr += item + ":"
+    return ipr[:-1]
     # """Extract IPv6 address"""
     # raise NotImplementedError
 
