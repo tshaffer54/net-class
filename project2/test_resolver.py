@@ -10,7 +10,7 @@ from resolver import val_to_2_bytes
 from resolver import val_to_n_bytes
 from resolver import bytes_to_val
 from resolver import get_2_bits
-from resolver import get_offset
+from resolver import get_domain_name_location
 from resolver import parse_cli_query
 from resolver import format_query
 from resolver import parse_response
@@ -42,9 +42,9 @@ class TestResolver:
         '''Get 2 bits'''
         assert get_2_bits([200, 100]) == 3
 
-    def test_get_offset(self):
+    def test_get_domain_name_location(self):
         '''Get offset'''
-        assert get_offset([200, 100]) == 2148
+        assert get_domain_name_location([200, 100]) == 2148
 
     def test_parse_cli_query(self):
         '''Parse command-line arguments'''
