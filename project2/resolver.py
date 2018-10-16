@@ -68,8 +68,9 @@ def get_domain_name_location(bytes_lst: list) -> int:
     bit1 = bin(bytes_lst[0])
     bit2 = bin(bytes_lst[1]).replace('b', '')
     comb = bit1 + bit2
-    loc = int('0b'+comb, 2)
-    return loc
+    loc = comb[-12:]
+    rloc = int('0b' + loc, 2)
+    return rloc
 
 
 def parse_cli_query(filename, q_type, q_domain, q_server=None) -> tuple:
