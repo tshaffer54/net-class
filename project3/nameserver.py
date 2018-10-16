@@ -48,13 +48,25 @@ def bytes_to_val(bytes_lst: list) -> int:
 
 
 def get_left_bits(bytes_lst: list, n_bits: int) -> int:
-    '''Extract left n bits of a two-byte sequence'''
-    raise NotImplementedError
+    bit1 = bin(bytes_lst[0])
+    bit2 = bin(bytes_lst[1]).replace('b', '')
+    bits = bit1 + bit2
+    lbits = bits[:n_bits]
+    lbit = int(lbits, 2)
+    return lbit
+    # '''Extract left n bits of a two-byte sequence'''
+    # raise NotImplementedError
 
 
 def get_right_bits(bytes_lst: list, n_bits) -> int:
-    '''Extract right n bits bits of a two-byte sequence'''
-    raise NotImplementedError
+    bit1 = bin(bytes_lst[0])
+    bit2 = bin(bytes_lst[1]).replace('b', '')
+    bits = bit1 + bit2
+    rbits = bits[-n_bits:]
+    rbit = int(rbits, 2)
+    return rbit
+    # '''Extract right n bits bits of a two-byte sequence'''
+    # raise NotImplementedError
 
 
 def read_zone_file(filename: str) -> tuple:
