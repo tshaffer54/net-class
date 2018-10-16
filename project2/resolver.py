@@ -69,9 +69,11 @@ def get_2_bits(bytes_lst: list) -> int:
 
 
 def get_domain_name_location(bytes_lst: list) -> int:
-    return 2148
-    # """Extract size of the offset from a two-byte sequence"""
-    # raise NotImplementedError
+    bit1 = bin(bytes_lst[0])
+    bit2 = bin(bytes_lst[1]).replace('b', '')
+    comb = bit1 + bit2
+    loc = int('0b'+comb, 2)
+    return loc
 
 
 def parse_cli_query(filename, q_type, q_domain, q_server=None) -> tuple:
