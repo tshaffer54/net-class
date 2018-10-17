@@ -128,8 +128,9 @@ def parse_request(origin: str, msg_req: bytes) -> tuple:
 
 
 def format_response(zone: dict, trans_id: int, qry_name: str, qry_type: int, qry: bytearray) -> bytearray:
-    """Format the response"""
-    raise NotImplementedError
+    print('blah')
+    # """Format the response"""
+    # raise NotImplementedError
 
 
 def run(filename: str) -> None:
