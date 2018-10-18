@@ -120,13 +120,27 @@ def read_zone_file(filename: str) -> tuple:
 
 
 def parse_request(origin: str, msg_req: bytes) -> tuple:
-    n = msg_req[:2]
-    nr = int.from_bytes(n, 'big')
-    msg = msg_req[13:16]
-    msg = msg.decode('utf-8')
-    typ = msg_req[35]
-    res = msg_req[12:]
-    return nr, msg, typ, res
+    zone_msg_lst = origin.split('.')
+    zone_msg = zone_msg_lst[0]
+    trans_id = msg_req[:2]
+    trans_idr = int.from_bytes(trans_id, 'big')
+    dom = msg_req[13:16]
+    dom_name = dom.decode('utf-8')
+    query_typ = msg_req[35]
+    query = msg_req[12:]
+    clas = msg_req[-1:]
+    clasr = int.from_bytes(clas, 'big')
+    print(type(clasr))
+    if zone_msg == 'cs430':
+        if query_typ is 1 or query_typ is 28:
+            if clasr == 1 or clasr == 28:
+                return trans_idr, dom_name, query_typ, query
+            else:
+                raise ValueError("Unknown class")
+        else:
+            raise ValueError("Unknown query type")
+    else:
+        raise ValueError("Unknown zone")
     # """Parse the request"""
     # raise NotImplementedError
 
