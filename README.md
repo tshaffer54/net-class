@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 # Custom dig
 
 Complete the following programming project and push code to your GitHub repository.
