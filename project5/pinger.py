@@ -81,12 +81,6 @@ def parse_reply(my_socket: socket.socket, req_id: int, timeout: int, addr_dst: s
         time_left = time_left - how_long_in_select
         if time_left <= 0:
             raise TimeoutError("Request timed out after 1 sec")
-        # print_raw_bytes(pkt_rcvd)
-        # print(addr[0])
-        # print(addr_dst)
-        # print(length)
-        # print(ttl)
-        # print(time_tot)
         return addr[0], addr_dst, length, ttl, time_tot
 
 
@@ -135,23 +129,29 @@ def ping(host: str, pkts: int, timeout: int = 1) -> None:
     # TODO: Implement the main loop
     t = 1
     tim = []
+    rec = 0
     for i in range(pkts):
         addr, addr_dst, length, ttl, time_tot = send_request(host, t)
         if t == 1:
             print("--- Ping {} ({}) using Python ---".format(addr_dst, addr))
-        print("{} bytes from {}: icmp_seq={} TTL={} time={} ms".format(length, addr, t, ttl, time_tot))
+        if ttl != 0:
+            print("{} bytes from {}: icmp_seq={} TTL={} time={} ms".format(length, addr, t, ttl, time_tot))
+            rec += 1
+        if ttl == 0:
+            print("No response: Request timed out after 1 sec")
         tim.append(time_tot)
         if t == 5:
-            print("\n")
-            print("--- {} ping statistics ---".format(addr_dst))
-            print("5 packets transmitted, 5 recieved, 0% packet loss")
-            minl = min(tim)
-            avgl = sum(tim) / float(len(tim))
-            maxl = max(tim)
-            mdev = statistics.stdev(tim)
-            print("rtt min/avg/max/mdev = {}/{}/{}/{} ms".format(minl, avgl, maxl, mdev), "\n")
-
-
+            print("\n --- {} ping statistics ---".format(addr_dst))
+            loss = 100 - (rec/5 * 100)
+            if loss != 0:
+                print("5 packets transmitted, {} recieved, {}% packet loss".format(rec, loss))
+            else:
+                print("5 packets transmitted, {} recieved, {}% packet loss".format(rec, loss))
+                minl = round(min(tim), 3)
+                avgl = round(sum(tim) / float(len(tim)), 3)
+                maxl = round(max(tim), 3)
+                mdev = round(statistics.stdev(tim), 3)
+                print("rtt min/avg/max/mdev = {}/{}/{}/{} ms".format(minl, avgl, maxl, mdev), "\n")
         t += 1
 
     # DONE
