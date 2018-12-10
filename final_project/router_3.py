@@ -73,32 +73,33 @@ def format_update():
 def parse_update(msg, neigh_addr):
     """Update routing table"""
     table = ROUTING_TABLE
-    tmp = False
-    table.setdefault(neigh_addr, [])
-    typ = msg[0]
-    length = len(msg) - 1
+    change = False
+    if neigh_addr[0] not in table.keys():
+        table.setdefault(neigh_addr[0], [])
+    length = len(msg)
     place = 1
     ip = ""
-    while place != length+1:
+    while place != length:
         if place % 5 != 0:
             ip += str(msg[place]) + "."
             place += 1
         else:
-            ip = ip[:-1]
-            if {ip: msg[place]} in table.values():
+            if {ip[:-1]: msg[place]} in table[neigh_addr[0]]:
                 pass
             else:
-                table[neigh_addr].append({ip: msg[place]})
+                table[neigh_addr[0]].append({ip[:-1]: msg[place]})
                 ip = ""
                 place += 1
-                tmp = True
-    return tmp
+                change = True
+    return change
 
 
 def send_update(node):
     """Send update"""
     msg = format_update()
-    port = 4300 + int(node[-1])
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.bind((THIS_NODE, PORT))
+    s.sendto(msg, (node, (PORT + int(node[-1]))))
 
 
 def format_hello(msg_txt, src_node, dst_node):
@@ -145,23 +146,39 @@ def parse_hello(msg):
 
 def send_hello(msg_txt, src_node, dst_node):
     message = format_hello(msg_txt, src_node, dst_node)
-    raise NotImplementedError
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.bind((THIS_NODE, PORT))
+    s.sendto(message, (dst_node, (PORT + int(dst_node[-1]))))
 
 
 def print_status():
     """Print status"""
-    print('Routing Table')
+    print('\n {} Routing Table'.format(THIS_NODE))
     for key in ROUTING_TABLE.keys():
         print('\n', key)
         for item in ROUTING_TABLE[key]:
             for add in item:
                 print(add, item[add])
-    # raise NotImplementedError
 
 
 def main(args: list):
-    read_file('network_1_config.txt')
+    read_file(args[1])
+    # read_file('network_1_config.txt')
     print_status()
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.bind((THIS_NODE, PORT + int(HOST_ID)))
+    for item in NEIGHBORS:
+        send_hello(MESSAGES[random.randint(0, 4)], THIS_NODE, item)
+    while True:
+        data, addr = s.recvfrom(1024)
+        if data[0] == 0:
+            if parse_update(data, addr):
+                print_status()
+                for item in NEIGHBORS:
+                    send_update(item)
+        else:
+            src, dest, mes = parse_hello(data)
+            print('Source:', src, 'says', mes)
 
 
 if __name__ == "__main__":
