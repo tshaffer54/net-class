@@ -1,126 +1,254 @@
-<<<<<<< HEAD
-# The Story about Ping
+# Trivial Routing Protocol
 
-Implement a *ping* application using ICMP request and reply messages. You have to use Python's *RAW* sockets to properly send ICMP messages. You should complete the provided ping application so that it sends 5 Echo requests to each RIR (ARIN, RIPE, LACNIC, AFRINIC, APNIC), 1 request every second. Each message contains a payload of data that includes a timestamp. After sending each packet, the application waits up to one second to receive a reply. If the one-second timer expires, assume the packet is lost or the server is down. Report the following statistics for each host:
+## Task
 
-* packet loss
-* maximum round-trip time
-* minimum RTT
-* average RTT
-* RTT standard deviation
+In this project you will be writing a set of procedures to implement a distributed asynchronous distance-vector routing protocol. Eventually we'll try to make all the routers work together in the lab environment. In order to achieve general compatibility, it's mandatory that you use **Ubuntu 18.04** as a platform and **Python 3.6** as the implementation language.
 
-## Code notes
+I recommend you implement your router application in stages, from a basic socket application to a full-fledged router.
 
-You need to receive the structure ICMP_ECHO_REPLY and fetch the information you need, such as checksum, sequence number, time to live (TTL), etc.
+This is going to be a challenging project, not only in the sense of correctly implementing the distance-vector routing algorithm but also because your program must handle multiple connections that will operate asynchronously. There are several approaches to correctly deal with a bunch of asynchronous sockets, we are going to use the Python `select` method. The `select` method takes three lists, (sockets I want to **read from**, sockets I want to **write to**, sockets that might have **errors**) and checks all of the sockets lists. When the function returns (either right away, or after a set time), the lists you passed in will have been transformed into lists of sockets that you may want to read, write or check for errors respectively. You can be assured that when you make a read or write call, the call will not block.
 
-This application requires the use of raw sockets. You may need administrator/root privileges to run your program.
+I would strongly suggest that you take the time to write yourself a high-level design for this project before you start writing code. You may also find it useful to write a little server program that keeps multiple connections active and adds messages to a queue. Doing something very simple like this is a good way to learn and check out the problems you are likely to run into with asynchronous communications before you get mired in the whole distance-vector routing.
 
-When running this application as a root, make sure to use `python3`.
+Each router should maintain a set of NEIGHBORS (adjacent routers) and a ROUTING_TABLE as a dictionary in the following format:
 
-### Functions
+```python
+{'destination':[cost, 'next_hop']}
+```
 
-* `print_raw_bytes`: auxiliary function, useful for debugging. Takes (received) *packet bytes* as an argument. **Can be used without modifications**
+## Stage 1: Read the Configuration File
 
-* `checksum`: calculates packet checksum. Takes *packet bytes* as an argument. **Can be used without modifications**
+We start with a simple application that reads a router's configuration from a text file, displays its status (neighbors and cost of getting to them), and starts listening for incoming UDP connections on port 4300. The configuration contains names of your directly connected neighbors and the cost to reach those neighbors.
 
-* `parse_reply`: receives and parses an echo reply. Takes the following arguments: *socket*, *request id*, *timeout*, and the *destination address*. Returns a tuple of the *destination address*, *packet size*, *roundtrip time*, *time to live*, and *sequence number*. You need to modify lines between labels **TODO** and **DONE**. This function should raise an error if the response message type, code, or checksum are incorrect.
+You should write 4 identical files, each one for a different address (127.0.0.**x**) and port (4300**x**). By the end of the project you should be able to test your routers locally, at the very least.
 
-* `format_request`: formats echo request. Takes *request id* and *sequence number* as arguments. **Can be used without modifications**
+### Configuration file format
 
-0 || 15 ||
----|---|---|---
-type | code | checksum
-id || sequence
+```
+Router_1_IP_address
+Neighbor_1_IP_addres Cost_of_getting_to_neighbor_1
+Neighbor_2_IP_addres Cost_of_getting_to_neighbor_2
 
+Router_2_IP_address
+Neighbor_1_IP_addres Cost_of_getting_to_neighbor_1
+Neighbor_2_IP_addres Cost_of_getting_to_neighbor_2
+Neighbor_3_IP_addres Cost_of_getting_to_neighbor_3
+```
 
-* `send_request`: creates a socket and uses sends a message prepared by `format_request`. **Can be used without modifications**
+File *network_1_config.txt* represents the following network:
 
-* `ping`: main loop. Takes a *destination host*, *number of packets to send*, and *timeout* as arguments. Displays host statistics. You need to modify lines between labels **TODO** and **DONE**.
+![Simple network](network_1_layout.png)
+
+## Stage 1: Welcome to the Party
+
+Start with a socket application that reads network configuration from a file, binds to port 4300, and prints the routing table.
+
+### Stage 1 Functionality
+
+1. Read the configuration file
+2. Pick an appropriate address
+3. Display the chosen router's neighborhood (names and costs)
+4. Start listening on **UDP** port 4300
+
+## Stage 2: Close Encounters of the Third Kind
+
+1. Your program must connect to the IP addresses specified in the configuration file. Your client should accept a path to the configuration file as a command line argument so that we can try out a couple of different configurations. Note that in order to bootstrap the network you are going to need to have your program retry connections that fail.
+
+2. Your program must also accept incoming IP connections from neighbors which may inform you of a link cost change, or may ask you to deliver a message to a particular IP address.
+
+3. Our protocol will use the following types of messages:
+
+* **UPDATE (0)**
+* **HELLO (1)**
+
+You should use `bytearray` or `struct` to format and parse messages.
+
+### UPDATE message format
+
+* The first byte of the message (0): 0
+
+* Next four bytes (1-4): IP address
+
+* The next byte (5): cost
+
+* The same pattern (IP address followed by cost) repeats. 
+
+```
+0       7 8     15 16    23 24    31 32    39 
++--------+--------+--------+--------+--------+
+|  Type  |           IP Address 1            |
++--------+--------+--------+--------+--------+
+| Cost 1 |           IP Address 2            |
++--------+--------+--------+--------+--------+
+| Cost 2 |     Another record ...
++--------+--------+--------+--------+--------+
+```
+
+### HELLO message format
+
+* The first byte of the message (0): 1
+
+* Next four bytes (1-4): source IP address
+
+* Next four bytes (5-8): destination IP address
+
+* The rest of the message (9+): text (characters)
+
+```
+0       7 8     15 16    23 24    31 32    39 
++--------+--------+--------+--------+--------+
+|  Type  |        Source IP Address          |
++--------+--------+--------+--------+--------+
+|  Destination IP Address           |  Text
++--------+--------+--------+--------+--------+
+|  Continuation of message text
++--------+--------+--------+--------+--------+
+```
+
+### Event loop
+
+1. Do we have pending connections?
+
+    1. Accept new connections
+
+    2. Add to the listener list
+
+    3. Add IP addresses to the neighbor list
+
+2. Process incoming messages
+
+    1. If UPDATE, then update the routing table
+        * Does my vector change?  If so, then set flag to `update_vector`
+        * Print the updated routing table
+
+    2. If DELIVERY, then forward to the destination
+
+    3. If STATUS, then respond with the routing table
+
+3. Is `update_vector` flag set?
+
+    1. Send the new vector to all neighbors that can accept data
+
+4. Check my neighbor list against the list of currently connected neighbors
+
+    1. If missing neighbors, then try to initiate connections to them
+
+    2. If successful, then add the new neighbor to list
+
+    3. Send the new neighbor my distance vector
+
+### Stage 2 Functionality
+
+1. Read the configuration file name as a command line parameter
+2. Read the neighborhood information from the configuration file
+3. Send a router's table to all neighbors
+4. Receive updates from the neighbors
+5. Keep listening and be ready to update the routing table
+
+## Stage 3: Routing
+
+Write the following routing functions.
+
+* Read a configuration file for your specific router and add each neighbor to a set of neighbors.
+
+* Build an initial routing table as a dictionary with nodes as keys. Dictionary values should be a distance to the node and the next hop address. Initially, the dictionary must contain your neighbors only.
+
+```python
+{'destination':[cost, 'next_hop']}
+```
+
+* Format the update message based on the values in the routing table and return the message. For example, a message advertising routes to **127.0.0.1** of cost **10** and to **127.0.0.2** of cost **5** is the following `bytearray`:
+
+```
+0x0 0x7f 0x0 0x0 0x1 0xA 0x7f 0x0 0x0 0x2 0x5
+```
+
+* Parse the update message and return `True` if the table has been updated. The function must take a message (raw bytes) and the neighbor's address and update the routing table, if necessary.
+
+* Print current routing table. The function must print the current routing table in a human-readable format (rows, columns, spacing).
+
+* Parse a message to deliver. The function must parse the message and extract the destination address. Look up the destination address in the routing table and return the next hop address.
+
+* Router works with properly implemented routers of other students.
+
+## Functions
+
+### read_file(filename)
+
+* Read a configuration file for your specific router and add each neighbor to a set of neighbors.
+* Build an initial routing table as a dictionary with nodes as keys.
+* Dictionary values should be a distance to the node and the next hop address (ie. {'destination':[cost, 'next_hop']}).
+* Initially, the dictionary must contain your neighbors only.
+
+### format_update_msg()
+
+* Format the update message based on the values in the routing table.
+* The message advertising routes to 127.0.0.1 of cost 10 and to 127.0.0.2 of cost 5 is a bytearray in the following format
+```
+0x0 0x7f 0x0 0x0 0x1 0xA 0x7f 0x0 0x0 0x2 0x5
+```
+* The function must return the message.
+
+### update_table(msg, neigh_addr)
+
+* Parse the update message.
+* The function must take a message (raw bytes) and the neighbor's address and update the routing table, if necessary.
+* The function must return True if the table has been updated.
+
+### print_status()
+
+* Print current routing table.
+* The function must print the current routing table in a human-readable format (rows, columns, spacing).
+
+### deliver_msg()
+
+* Parse a message to deliver.
+* The function must parse the message and extract the destination address.
+* Look up the destination address in the routing table and return the next hop address.
+
+### send_update(node)
+
+* Send updated routing table to the specified node (router)
+
+## Running the simulation
+
+Start each router as follows:
+
+```
+python3 router_1.py network_1_config.txt
+python3 router_2.py network_1_config.txt
+python3 router_3.py network_1_config.txt
+python3 router_4.py network_1_config.txt
+```
+
+![Simulation](routing.apng)
+
+### Capturing the traffic
+
+Use the provided dissector *trivial_routing_protocol.lua* to see routing messages in Wireshark.
+
+```
+wireshark -X lua_script:trivial_routing_protocol.lua routing_capture.pcapng &
+```
+
+## Grading
+
+Functionality | Points
+---|---
+Read network configuration file | 20
+Display router's Distance Vector | 20 
+Format UPDATE message | 20
+Send UPDATE message to all neighbors, if necessary | 20
+Receive UPDATE message from all neighbors | 20
+Parse UPDATE message | 20
+Update Distance Vector, if necessary | 20
+Ignore incoming UPDATE message, if possible | 20
+Format and send HELLO message | 20
+Parse and forward/display HELLO message | 20
+**Total** | **200**
 
 ## References
 
 * [socket — Low-level networking interface — Python 3.7.1 documentation](https://docs.python.org/3/library/socket.html)
-
-* [https://sock-raw.org/papers/sock_raw](https://sock-raw.org/papers/sock_raw)
-
-* [TCP/IP Raw Sockets | Microsoft Docs](https://docs.microsoft.com/en-us/windows/desktop/WinSock/tcp-ip-raw-sockets-2)
-
-* [Converting between Structs and Byte Arrays – GameDev<T>](http://genericgamedev.com/general/converting-between-structs-and-byte-arrays/)
 
 * [select — Waiting for I/O completion — Python 3.7.1 documentation](https://docs.python.org/3/library/select.html)
-
-* [How to Work with TCP Sockets in Python (with Select Example)](https://steelkiwi.com/blog/working-tcp-sockets/)
-
-* [select — Wait for I/O Efficiently — PyMOTW 3](https://pymotw.com/3/select/)
->>>>>>> bfded5ec51ed257b76c528efbb65b1383b131eb2
-=======
-# Tracing the Route
-
-Implement `traceroute` utility.
-
-Language of implementation: any.
-
-Use UDP (preferred) or ICMP (acceptable) socket to send probing messages to the specified host.
-
-Display relevant statistics of the probe.
-
-For you convenience, lines of Python implementation are provided.
-
-## C++
-
-```
-g++ --std=gnu++14 traceroute.cpp -o traceroute.out
-./traceroute.out example.com
-```
-
-## Java
-
-```
-javac Traceroute.java
-java Traceroute example.com
-```
-
-## Python
-
-```
-python3 traceroute.py example.com
-```
-
-### Functions
-
-* `print_raw_bytes`: takes *packet* as an argument and prints prints all the bytes as hexadecimal values.
-
-* `checksum`: takes *packet* as an argument and returns its Internet **checksum**.
-
-* `format_request`: takes *ICMP type*, *ICMP code*, *request ID*, and *sequence number* as arguments and returns a properly formatted **ICMP request packet** with current time as *data*. This function has to compute the packet's *checksum* and add it to the header of the outgoing message.
-
-* `send_request`: takes *packet* bytes, *destination address*, and *Time-to-Live* value as arguments and returns a new **raw socket**. This function sets the socket's time-to-live option to the supplied value. 
-
-* `receive_reply`: takes a *socket* and *timeout* as arguments and returns a tuple of the **received packet** and the **IP address** of the responding host. This function uses `select` and may raise a `TimeoutError` is the response does not come soon enough.
-
-* `parse_reply`: takes a *packet* as an argument and returns `True` if it is a valid (expected) response. This function parses the response header and verifies that the *ICMP type* is 0, 3, or 11. It also validates the response checksum and raises a `ValueError` if it's incorrect.
-
-* `traceroute`: takes *host* (domain) name as an argument and traces a path to that host. The general approach is to have a big loop that sends *ICMP Echo Request* messages to the host, incrementally increasing TTL value. Each iteration of this loop generates ATTEMPTS (3) messages. There are two possible sources of errors: `Timeout` (response was not received within **timeout**) and `Value` (something is wrong with the response). For each attempts you should do the following:
-    1. Format an ICMP Request
-    2. Send the request to the destination host
-    3. Receive a response (may or may not be a proper ICMP Reply)
-    4. Parse the response and check for errors
-    5. Print the relevant statistics, if possible
-    6. Print the error message, if any
-    7. Stop the probe after MAX_HOPS attempts or once a response from the destination host is received
-
-* `main`: takes command line arguments and starts the probe.
-
-
-## References
-
-* [Traceroute - Wikipedia](https://en.wikipedia.org/wiki/Traceroute)
-
-* [traceroute(8) - Linux man page](https://linux.die.net/man/8/traceroute)
-
-* [Linux Howtos: C/C++ -> Sockets Tutorial](http://www.linuxhowtos.org/C_C++/socket.htm)
-
-* [Socket (Java SE 10 & JDK 10 )](https://docs.oracle.com/javase/10/docs/api/java/net/Socket.html)
-
-* [socket — Low-level networking interface — Python 3.7.1 documentation](https://docs.python.org/3/library/socket.html)
->>>>>>> b4dcf2ac5d4ebfd8148a42b6f8f2c35b6478000b
