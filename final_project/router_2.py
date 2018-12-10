@@ -72,27 +72,75 @@ def format_update():
 
 def parse_update(msg, neigh_addr):
     """Update routing table"""
-    raise NotImplementedError
+    table = ROUTING_TABLE
+    tmp = False
+    table.setdefault(neigh_addr, [])
+    typ = msg[0]
+    length = len(msg) - 1
+    place = 1
+    ip = ""
+    while place != length+1:
+        if place % 5 != 0:
+            ip += str(msg[place]) + "."
+            place += 1
+        else:
+            ip = ip[:-1]
+            if {ip: msg[place]} in table.values():
+                pass
+            else:
+                table[neigh_addr].append({ip: msg[place]})
+                ip = ""
+                place += 1
+                tmp = True
+    return tmp
 
 
 def send_update(node):
     """Send update"""
     msg = format_update()
     port = 4300 + int(node[-1])
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    s.sendto(msg, (node, port))
 
 
 def format_hello(msg_txt, src_node, dst_node):
     """Format hello message"""
-    raise NotImplementedError
+    msg = [1]
+    bmsg = []
+    src = src_node.split('.')
+    dst = dst_node.split('.')
+    for item in src:
+        msg.append(int(item))
+    for item in dst:
+        msg.append(int(item))
+    for item in msg:
+        tmp = item.to_bytes(1, 'big')
+        if len(bmsg) is 0:
+            bmsg = bytearray(tmp)
+        else:
+            bmsg.extend(tmp)
+    for i in range(len(msg_txt)):
+        bmsg.extend(msg_txt[i].encode())
+    return bmsg
 
 
 def parse_hello(msg):
     """Send the message to an appropriate next hop"""
-    raise NotImplementedError
+    typ = msg[0]
+    src = msg[1:5]
+    dst = msg[5:9]
+    message = msg[9:]
+    src_ip = ""
+    dst_ip = ""
+    for i in range(4):
+        src_ip += str(src[i]) + "."
+    src_ip = src_ip[:-1]
+    for i in range(4):
+        dst_ip += str(dst[i]) + "."
+    dst_ip = dst_ip[:-1]
+    message = message.decode()
+    if typ is 1:
+        return src_ip, dst_ip, message
+    else:
+        raise ValueError("Not a hello")
 
 
 def send_hello(msg_txt, src_node, dst_node):
@@ -112,19 +160,8 @@ def print_status():
 
 
 def main(args: list):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind((THIS_NODE, PORT))
     read_file('network_1_config.txt')
     print_status()
-    for item in NEIGHBORS:
-        send_update(item)
-    # for item in NEIGHBORS:
-    #     sock.sendall(send_update(item))
-    try:
-        resp = sock.recvfrom(1024)
-        print(resp)
-    finally:
-        sock.close()
 
 
 if __name__ == "__main__":

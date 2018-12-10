@@ -72,7 +72,27 @@ def format_update():
 
 def parse_update(msg, neigh_addr):
     """Update routing table"""
-    raise NotImplementedError
+    table = ROUTING_TABLE
+    tmp = False
+    table.setdefault(neigh_addr, [])
+    typ = msg[0]
+    length = len(msg) - 1
+    place = 1
+    ip = ""
+    while place != length+1:
+        if place % 5 != 0:
+            ip += str(msg[place]) + "."
+            place += 1
+        else:
+            ip = ip[:-1]
+            if {ip: msg[place]} in table.values():
+                pass
+            else:
+                table[neigh_addr].append({ip: msg[place]})
+                ip = ""
+                place += 1
+                tmp = True
+    return tmp
 
 
 def send_update(node):
@@ -142,12 +162,6 @@ def print_status():
 def main(args: list):
     read_file('network_1_config.txt')
     print_status()
-    print('\n')
-    num = random.randint(0, 4)
-    for item in NEIGHBORS:
-        tmp = format_hello(MESSAGES[num], THIS_NODE, item)
-        print(parse_hello(tmp))
-        break
 
 
 if __name__ == "__main__":
